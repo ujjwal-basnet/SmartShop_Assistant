@@ -40,19 +40,19 @@ def call_llm_robust(system_prompt: str, user_prompt: str, json_mode: bool = Fals
         logger.info(f"Error calling llm {e}")
         raise e 
     
-def test():
-    system_prompt = "you are a helpful assistant"
-    user_prompt = "solve 2+2"
+# def test():
+#     system_prompt = "you are a helpful assistant"
+#     user_prompt = "solve 2+2"
 
-    response_json = call_llm_robust(system_prompt, user_prompt, json_mode=True)
-    response_text = call_llm_robust(system_prompt, user_prompt, json_mode=False)
+#     response_json = call_llm_robust(system_prompt, user_prompt, json_mode=True)
+#     response_text = call_llm_robust(system_prompt, user_prompt, json_mode=False)
 
-    print("JSON response:")
-    print(response_json)
-    print("*********************************")
-    print("Text response:")
-    print(response_text)
+#     print("JSON response:")
+#     print(response_json)
+#     print("*********************************")
+#     print("Text response:")
+#     print(response_text)
 
 
-if __name__ == "__main__":
-    test()
+# if __name__ == "__main__":
+#     test()

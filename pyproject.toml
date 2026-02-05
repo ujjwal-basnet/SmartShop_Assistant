@@ -1,0 +1,27 @@
+[project]
+name = "SmartShop_Assistant"
+version = "0.1.0"
+description = "AI ecommerce chatbot with RAG, SQL tools, and virtual try-on"
+requires-python = ">=3.11"
+
+dependencies = [
+    "langchain",
+    "openai",
+    "python-dotenv",
+    "faiss-cpu",
+    "pandas",
+    "requests",
+    "langsmith",
+    "notebook>=7.5.3",
+    "langchain-huggingface>=1.2.0",
+    "transformers>=4.57.6",
+    "torch>=2.10.0",
+]
+
+
+
+
+[tool.uv.workspace]
+members = [
+    "SmartShop_Assistant",
+]

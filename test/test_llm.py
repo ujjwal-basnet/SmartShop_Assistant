@@ -1,5 +1,6 @@
 from app.llm.llm_client import call_robust_llm
-
+import pytest 
+@pytest.mark.llm
 def test_text_mode():
     out = call_robust_llm(
         system_prompt="You are a helpful assistant",
@@ -8,7 +9,7 @@ def test_text_mode():
     )
     assert "4" in str(out)
 
-
+@pytest.mark.llm
 def test_json_mode():
     out = call_robust_llm(
         system_prompt="You are a helpful assistant",

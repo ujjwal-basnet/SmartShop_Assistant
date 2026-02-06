@@ -1,58 +1,46 @@
 from app.config.settings import config
-from pydantic_ai import Agent, NativeOutput, StructuredDict
-from pydantic_ai.models.fallback import FallbackModel
-from pydantic_ai.models.openai import OpenAIChatModel
 from tenacity import retry, stop_after_attempt, wait_random_exponential
-from loguru import logger 
+from loguru import logger
 
-# Variables
-llm_model_name_1 = config.OPENAI_MODEL
-llm_model_name_2 = config.OPENAI_MODEL
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import SystemMessage, HumanMessage
 
-# Models
-primary = OpenAIChatModel(llm_model_name_1)
-secondary = OpenAIChatModel(llm_model_name_2)
-fallback_model = FallbackModel(primary, secondary)
-
-# JSON schema
-AnyJSON = StructuredDict({"type": "object"}, name="AnyJSON")
-
-
-# llm calling function 
 @retry(wait=wait_random_exponential(min=1, max=2), stop=stop_after_attempt(2))
-def call_llm_robust(system_prompt: str, user_prompt: str, json_mode: bool = False):
-    
-    try :
-        output_type = NativeOutput(AnyJSON) if json_mode else str
-        
-        agent = Agent(
-            fallback_model,
-            instructions=system_prompt,
-            output_type=output_type,
-            model_settings={"api_key": config.OPENAI_API_KEY}
+def call_robust_llm(system_prompt: str, user_prompt: str, json_mode: bool = False):
+    try:
+        llm = ChatOpenAI(
+            model=config.OPENAI_MODEL,
+            api_key=config.OPENAI_API_KEY,
+            temperature=0,
         )
 
-        # Run the agent with user message
-        result = agent.run_sync(user_prompt)
-        return result.output
-    
-    except Exception as e :
+        if json_mode:
+            llm = llm.bind(response_format={"type": "json_object"})
+
+        messages = [
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=user_prompt),
+        ]
+
+        resp = llm.invoke(messages)   # <- FIX
+        return resp.content
+    except Exception as e:
         logger.info(f"Error calling llm {e}")
-        raise e 
-    
-# def test():
-#     system_prompt = "you are a helpful assistant"
-#     user_prompt = "solve 2+2"
+        raise
 
-#     response_json = call_llm_robust(system_prompt, user_prompt, json_mode=True)
-#     response_text = call_llm_robust(system_prompt, user_prompt, json_mode=False)
 
-#     print("JSON response:")
-#     print(response_json)
-#     print("*********************************")
-#     print("Text response:")
-#     print(response_text)
+
 
 
 # if __name__ == "__main__":
-#     test()
+#     print(call_robust_llm(
+#         system_prompt="You are a helpful assistant",
+#         user_prompt="What is 2+2?",
+#         json_mode=False
+#     ))
+
+#     print(call_robust_llm(
+#         system_prompt="You are a helpful assistant",
+#         user_prompt="Return JSON with key answer for 2+2",
+#         json_mode=True
+#     ))

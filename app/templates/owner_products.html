@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <h1>Inventory</h1>
+      <p>Track product count and stock level at a glance.</p>
+    </div>
+    <a class="btn" href="/owner/products/new">Add Product</a>
+  </div>
+
+  {% if fb == "ok" %}
+    <div class="banner ok">Product saved and posted to Facebook.</div>
+  {% elif fb == "error" %}
+    <div class="banner warn">Product saved, but Facebook posting failed. Check credentials.</div>
+  {% endif %}
+  {% if deleted == "ok" %}
+    <div class="banner ok">Product deleted successfully.</div>
+  {% elif error == "not_found" %}
+    <div class="banner warn">Product not found.</div>
+  {% endif %}
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-label">Products</div>
+      <div class="stat-value">{{ products | length }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Low Stock</div>
+      <div class="stat-value">
+        {{ products | selectattr("low_stock") | list | length }}
+      </div>
+    </div>
+  </div>
+
+  {% if products %}
+    <div class="list">
+      <div class="list-head">
+        <div>Product</div>
+        <div>Color</div>
+        <div>Price</div>
+        <div>Qty</div>
+        <div>Image</div>
+        <div>Actions</div>
+      </div>
+      {% for p in products %}
+        <div class="list-row {% if p.low_stock %}low{% endif %}">
+          <div class="product-cell">
+            <div class="thumb">
+              {% if p.image_url %}
+                <img src="{{ p.image_url }}" alt="{{ p.name }}" />
+              {% else %}
+                <span class="thumb-fallback">No Image</span>
+              {% endif %}
+            </div>
+            <div>
+              <div class="name">{{ p.name }}</div>
+              <div class="meta">{{ p.category or "Uncategorized" }}</div>
+              {% if p.description %}
+                <div class="meta">{{ p.description }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="cell" data-label="Color">{{ p.color or "—" }}</div>
+          <div class="cell" data-label="Price">${{ "%.2f" | format(p.price or 0) }}</div>
+          <div class="cell" data-label="Qty">
+            <span class="qty {% if p.low_stock %}low{% endif %}">{{ p.quantity }}</span>
+          </div>
+          <div class="cell" data-label="Image">
+            {% if p.image_url %}
+              <a class="link" href="{{ p.image_url }}" target="_blank">View</a>
+            {% else %}
+              <span class="muted">—</span>
+            {% endif %}
+          </div>
+          <div class="cell" data-label="Actions">
+            <form method="post" action="/owner/products/{{ p.id }}/delete" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
+              <button type="submit" class="btn-delete">Delete</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h3>No products yet</h3>
+      <p>Add your first item and we will sync it to Facebook automatically.</p>
+      <a class="btn" href="/owner/products/new">Add Product</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

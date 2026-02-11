@@ -24,7 +24,7 @@ we will create content generation context engine so that shopkeeper can generate
 
 and others
 
-(will create detiald blogs later on technical parts)
+(will create detailed  blogs later on technical parts)
 
 
     
